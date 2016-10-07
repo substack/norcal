@@ -54,7 +54,7 @@ var cal = norcal({
 if (argv._[0] === 'add') {
   var value = { title: argv.title }
   var opts = { created: argv.created, value: value }
-  cal.add(argv._.join(' '), opts, function (err) {
+  cal.add(argv._.splice(1).join(' '), opts, function (err) {
     if (err) exit(err)
   })
 } else if (argv._[0] === 'query') {
