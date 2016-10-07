@@ -1,6 +1,6 @@
 {
   "name": "norcal",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "p2p command-line calendar",
   "main": "index.js",
   "bin": {
