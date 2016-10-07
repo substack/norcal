@@ -98,7 +98,7 @@ if (argv._[0] === 'add') {
     var caltxt = calmonth(new Date, { colors: colors })
     var evlines = keys.map(function (key) {
       var c = 'bright ' + xcolors[indexes[key]%xcolors.length]
-      return fcolor(c) + '[' + indexes[key] + '] '
+      return fcolor(c) + '[' + key + '] '
         + times[key] + reset + ' ' + titles[key]
     })
     console.log(layers([
