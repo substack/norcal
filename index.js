@@ -43,7 +43,13 @@ Cal.prototype.add = function (time, opts, cb) {
 }
 
 Cal.prototype.remove = function (id, cb) {
-  this.kv.del(id, cb)
+  var kv = this.kv
+  kv.get(id, function (err, entry) {
+    if (Object.keys(entry).length === 0) {
+      return cb(new Error('No such event.'))
+    }
+    kv.del(id, cb)
+  })
 }
 
 Cal.prototype.query = function (opts, cb) {
