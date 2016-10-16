@@ -14,6 +14,7 @@ var strftime = require('strftime')
 var has = require('has')
 var fs = require('fs')
 var path = require('path')
+var uniq = require('uniq')
 
 var reset = fcolor('reset')
 var soft = '\x1b[27m'
@@ -67,8 +68,13 @@ if (argv._[0] === 'add') {
     console.log(row)
   })
 } else if (argv._[0] === 'rm') {
-  cal.remove(argv._[1], function (err) {
-    if (err) exit(err)
+  var key = argv._[1]
+
+  getDocFromAbbreviation(key, function (err, doc) {
+    if (err) return exit(err)
+    cal.remove(doc.key, function (err) {
+      if (err) exit(err)
+    })
   })
 } else {
   var date = new Date
@@ -80,12 +86,20 @@ if (argv._[0] === 'add') {
     var index = 0
     var indexes = {}
     var keys = []
+
+    // Determine the minimum key substring to show
+    var abbrevIndex = abbreviate(uniq(Object.keys(docs).map(function (name) {
+      return docs[name].key
+    })))
+
+    // Accumulate all event keys
     docs.forEach(function (doc) {
       if (!has(indexes,doc.key)) {
         indexes[doc.key] = index++
         keys.push(doc.key)
       }
     })
+
     colors[date.getDate()] = 'reverse'
     docs.forEach(function (doc) {
       var d = doc.time.getDate()
@@ -98,13 +112,30 @@ if (argv._[0] === 'add') {
     var caltxt = calmonth(new Date, { colors: colors })
     var evlines = keys.map(function (key) {
       var c = 'bright ' + xcolors[indexes[key]%xcolors.length]
-      return fcolor(c) + '[' + key + '] '
+      return fcolor(c) + '[' + abbrevIndex[key] + '] '
         + times[key] + reset + ' ' + titles[key]
     })
     console.log(layers([
       { text: caltxt, x: 0, y: 0 },
       { text: evlines.join('\n'), x: 22, y: 1 }
     ]))
+  })
+}
+
+function getDocFromAbbreviation (key, cb) {
+  var date = new Date
+  cal.query(monthRange(date), function (err, docs) {
+    if (err) return cb(err)
+
+    var res = docs.filter(function (doc) {
+      return doc.key.startsWith(key)
+    })
+    if (res.length > 0) {
+      var doc = res[0]
+      cb(null, doc)
+    } else {
+      cb(new Error('not found'))
+    }
   })
 }
 
@@ -133,3 +164,47 @@ function usage (code) {
   if (code) r.once('end', function () { process.exit(code) })
   r.pipe(process.stdout)
 }
+
+function abbreviate (lst) {
+  var trie = buildTrie(lst)
+
+  var res = {}
+
+  lst.forEach(function (elm) {
+    var t = trie
+    for (var i=0; i < elm.length; i++) {
+      var hasNext = Object.keys(t[elm[i]]).length > 0
+      if (i === elm.length - 1 || !hasNext) {
+        res[elm] = elm
+        break
+      } else if (t[elm[i]].idx === 0) {
+        res[elm] = elm.substring(0, i + 1)
+        break
+      } else {
+        t = t[elm[i]]
+      }
+    }
+  })
+
+  return res
+
+  function buildTrie (lst) {
+    var trie = {}
+    for (var i=0; i < lst.length; i++) {
+      var key = lst[i]
+      var t = trie
+      for (var j=0; j < key.length; j++) {
+        var ch = key[j]
+        if (t[ch] === undefined) {
+          t[ch] = { idx: 0 }
+          t = t[ch]
+        } else {
+          t = t[ch]
+          t.idx++
+        }
+      }
+    }
+    return trie
+  }
+}
+
