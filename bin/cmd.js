@@ -93,7 +93,7 @@ if (argv._[0] === 'add') {
       var c = 'bright ' + xcolors[i%xcolors.length]
       colors[d] = date.getDate() === d ? 'reverse ' + c : c
       titles[doc.key] = doc.value.title
-      times[doc.key] = strftime('%H:%M', doc.time)
+      times[doc.key] = strftime('%a %e %H:%M', doc.time)
     })
     var caltxt = calmonth(new Date, { colors: colors })
     var evlines = keys.map(function (key) {
