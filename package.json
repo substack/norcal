@@ -11,7 +11,7 @@
     "collect-stream": "^1.1.1",
     "fuzzy-ansi-color": "^1.0.0",
     "has": "^1.0.1",
-    "hyperkv": "^1.7.0",
+    "hyperkv": "^2.0.1",
     "hyperlog": "^4.7.0",
     "hyperlog-calendar-index": "^2.1.0",
     "level": "^1.4.0",
