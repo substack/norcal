@@ -88,32 +88,47 @@ if (argv._[0] === 'add') {
     var keys = []
 
     // Determine the minimum key substring to show
-    var abbrevIndex = abbreviate(uniq(Object.keys(docs).map(function (name) {
+    var shortKeys = abbreviate(uniq(Object.keys(docs).map(function (name) {
       return docs[name].key
     })))
+    Object.keys(shortKeys).forEach(function (name, idx) {
+      docs[idx].shortKey = shortKeys[name]
+    })
 
     // Accumulate all event keys
     docs.forEach(function (doc) {
       if (!has(indexes,doc.key)) {
         indexes[doc.key] = index++
-        keys.push(doc.key)
+        keys.push({
+          key: doc.key,
+          day: Number(strftime('%e', doc.time))
+        })
       }
     })
 
+    function colorForDate (today, date) {
+      var day = strftime('%w', date)
+      var colour = 'bright ' + xcolors[day % xcolors.length]
+      if (today.getDate() === date.getDate()) {
+        return 'reverse'
+      } else {
+        return 'bright ' + colour
+      }
+    }
+
     colors[date.getDate()] = 'reverse'
     docs.forEach(function (doc) {
-      var d = doc.time.getDate()
+      var d = Number(strftime('%e', doc.time))
       var i = indexes[doc.key]
-      var c = 'bright ' + xcolors[i%xcolors.length]
-      colors[d] = date.getDate() === d ? 'reverse ' + c : c
+      colors[d] = colorForDate(date, doc.time)
       titles[doc.key] = doc.value.title
-      times[doc.key] = strftime('%a %e %H:%M', doc.time)
+      times[doc.key] = strftime('%a %b %e %H:%M', doc.time)
     })
     var caltxt = calmonth(new Date, { colors: colors })
-    var evlines = keys.map(function (key) {
-      var c = 'bright ' + xcolors[indexes[key]%xcolors.length]
-      return fcolor(c) + '[' + abbrevIndex[key] + '] '
-        + times[key] + reset + ' ' + titles[key]
+    var evlines = docs.map(function (doc) {
+      var c = colorForDate(date, doc.time)
+      return fcolor(c) + '[' + doc.shortKey + '] '
+        + times[doc.key] + reset + ' ' + titles[doc.key]
     })
     console.log(layers([
       { text: caltxt, x: 0, y: 0 },

@@ -36,6 +36,13 @@ function Cal (opts) {
 }
 
 Cal.prototype.add = function (time, opts, cb) {
+  if (opts && !cb) {
+    cb = opts
+    opts = null
+  }
+  opts = opts || {}
+  opts.created = opts.created || new Date
+
   var id = randombytes(8).toString('hex')
   this.kv.put(id, xtend(opts, { time: time }), function (err, node) {
     if (cb) cb(err, node, id)
