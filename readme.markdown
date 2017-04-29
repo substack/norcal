@@ -7,9 +7,17 @@ p2p command-line calendar
 # usage
 
 ```
-norcal
+norcal {PATTERN}
 
-  Show a calendar and events for the current month.
+  Show events in month calendar format.
+  By default, shows the current month,
+  or you can specify a PATTERN:
+
+  -3          Show the previous, current, and next month.
+  YYYY        Show all the events in the year YYYY.
+  YYYY-MM     Show all the events in the year/month YYYY-MM.
+  MNAME       Show all the events for a month name MNAME in current year.
+  MNAME YYYY  Show all the events for a month name MNAME in year YYYY.
 
 norcal add TIMESTR {-t TITLE}
 
@@ -22,6 +30,7 @@ norcal rm ID
 norcal query {--gt GT --lt LT}
 
   List events from GT to LT.
+
 ```
 
 # api
