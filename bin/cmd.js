@@ -52,7 +52,7 @@ if (argv._[0] === 'add') {
     if (err) exit(err)
   })
 } else if (argv._[0] === 'query') {
-  var opts = monthRange(new Date)
+  var opts = monthRange(new Date(argv.gt),new Date(argv.lt))
   cal.query(opts).on('data', function (row) {
     console.log(row)
   })
@@ -114,7 +114,7 @@ if (argv._[0] === 'add') {
 
 function getDocFromAbbreviation (key, cb) {
   var date = new Date
-  cal.query(monthRange(date), function (err, docs) {
+  cal.query(monthRange(date,date), function (err, docs) {
     if (err) return cb(err)
 
     var res = docs.filter(function (doc) {
