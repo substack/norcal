@@ -58,12 +58,8 @@ if (argv._[0] === 'add') {
   })
 } else if (argv._[0] === 'rm') {
   var key = argv._[1]
-
-  getDocFromAbbreviation(key, function (err, doc) {
-    if (err) return exit(err)
-    cal.remove(doc.key, function (err) {
-      if (err) exit(err)
-    })
+  cal.remove(key, function (err) {
+    if (err) exit(err)
   })
 } else {
   var fdate = new Date, ldate = new Date
@@ -96,6 +92,7 @@ if (argv._[0] === 'add') {
   }
   cal.query(monthRange(fdate,ldate), function (err, docs) {
     if (err) return exit(err)
+
     var mdocs = {}
     months.forEach(function (ym) { mdocs[ym] = [] })
     docs.forEach(function (doc) {
@@ -109,23 +106,6 @@ if (argv._[0] === 'add') {
       console.log(showMonth(new Date(ym), today, mdocs[ym]))
       console.log()
     })
-  })
-}
-
-function getDocFromAbbreviation (key, cb) {
-  var date = new Date
-  cal.query(monthRange(date,date), function (err, docs) {
-    if (err) return cb(err)
-
-    var res = docs.filter(function (doc) {
-      return doc.key.startsWith(key)
-    })
-    if (res.length > 0) {
-      var doc = res[0]
-      cb(null, doc)
-    } else {
-      cb(new Error('not found'))
-    }
   })
 }
 
